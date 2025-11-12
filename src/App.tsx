@@ -5,6 +5,7 @@ import { Flex, Splitter, Typography, Button, Space } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "./store/store";
 import { setFullPage, setClosePage, resetDefault, setSizes } from "./store/splitterSlice";
+import { fetchPhones } from "./store/phoneSlice";
 
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import ListPage from "./pages/ListPage";
@@ -33,33 +34,18 @@ const App: React.FC = () => {
     splitter.secondSize,
   ]);
 
+  //   useEffect(() => {
+
+
+  //     dispatch(fetchPhones());
+  // }, [dispatch]);
     const navigate = useNavigate();
 
   const handleNavigate = (path: string) => navigate(path);
 
   useEffect(() => {
     const fetchData = async () => {
-    //  await fetch('https://jsonplaceholder.typicode.com/posts')
-    //   .then((response) => response.json())
-    //   .then((json) => console.log(json));
-
-      // try {
-      //   const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
-      //     method: "GET",
-      //     headers: { "Content-Type": "application/json" }
-      //   }); // your API endpoint
-
-      //   if (!response.ok) {
-      //     console.log(response)
-      //     throw new Error(`HTTP error! status: ${response.status}`);
-      //   } else {
-      //     console.log(response)
-      //   }
-
-      // } catch (err: any) {
-      //   console.log(err)
-      // } finally {
-      // }
+ 
     };
 
     fetchData();
@@ -82,7 +68,6 @@ const App: React.FC = () => {
       </Space> */}
 
       <Splitter onResizeStart={(n) => {
-        console.log("fn start:", n);
       }}
         onResize={(n) => {
           const total = n.reduce((a, b) => a + b, 0);
@@ -91,8 +76,7 @@ const App: React.FC = () => {
           const first = `${percentSizes[0].toFixed(2)}%`;
           const second = `${percentSizes[1].toFixed(2)}%`;
           dispatch(setSizes({ firstSize: first, secondSize: second }));
-          // console.log("Pixel sizes:", sizes);
-          // console.log("Percent sizes:", percentSizes.map(p => `${p.toFixed(2)}%`));
+
         }}
         onResizeEnd={(n) => {
           console.log("fn end:", n);

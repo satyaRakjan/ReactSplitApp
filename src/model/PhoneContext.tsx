@@ -6,6 +6,7 @@ export interface Phone {
   phoneName: string;
   brand: string;
   price: number;
+  launchPrice: number;
   storage: string;
   ram: string;
   battery: string;
@@ -33,6 +34,7 @@ export const emptyPhone: Phone = {
   phoneName: '',
   brand: '',
   price: 0,
+  launchPrice: 0,
   storage: '',
   ram: '',
   battery: '',

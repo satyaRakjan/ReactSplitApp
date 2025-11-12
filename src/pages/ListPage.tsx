@@ -1,22 +1,61 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Typography, Avatar, List, message, Badge, Flex, Button, Segmented, Table, Input, Space, Rate } from "antd";
-import { usePhones, Phone } from "../model/PhoneContext";
+import { usePhones, Phone,emptyPhone } from "../model/PhoneContext";
 import { SearchOutlined } from '@ant-design/icons';
 import VirtualList from 'rc-virtual-list';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
 import Highlighter from 'react-highlight-words';
-
+import { setFullPage, setClosePage, resetDefault, setSizes } from "../store/splitterSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../store/store";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 
 type DataIndex = keyof Phone;
 
 const FirstPage: React.FC = () => {
-    const { phones } = usePhones();
-
+    const { phones, loading, error } = useSelector((state: RootState) => state.phones);
+    const [phoneList, setPhoneList] = useState<Phone[]>([]);
+    // const { phones } = usePhones();
+    const dispatch = useDispatch<AppDispatch>();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
+    const phonesUpdated = useSelector((state: RootState) => state.refresh.phonesUpdated);
+
+
+    useEffect(() => {
+       
+            const fetchPhones = async () => {
+                try {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/phones`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    // const data = await response.json();
+                    // console.log(data)
+                    const data: Phone[] = await response.json();
+                    setPhoneList(data);
+                    // editRecord = { ...data };
+
+                } catch (error) {
+                    setPhoneList([]);
+                    console.error("Failed to fetch phones:", error);
+                }
+            };
+
+
+     
+
+            fetchPhones();
+            // fetchReviws();
+
+        
+        // Cleanup function here can cancel any pending network requests
+        return () => {
+            setPhoneList([]);
+
+        };
+    }, [phonesUpdated]); // 👈 Key Dependency Array
+
 
     const handleSearch = (
         selectedKeys: string[],
@@ -113,11 +152,12 @@ const FirstPage: React.FC = () => {
             ),
     });
     const navigate = useNavigate();
-//    const handleNavigate = (path: string) => navigate(path);
+    //    const handleNavigate = (path: string) => navigate(path);
 
-    const handleCellClick = (record: Phone, columnKey: string) => {
-        
-         navigate(`/detail/${record.id}`, { state: record });
+    const handleCellClick = (record: Phone) => {
+        navigate(`/detail/${record.id}`, { state: record });
+        dispatch(resetDefault());
+
 
     };
 
@@ -130,7 +170,7 @@ const FirstPage: React.FC = () => {
             width: '30%',
             fixed: 'left',
             onCell: (record: Phone) => ({
-                onClick: () => handleCellClick(record, "name"),
+                onClick: () => handleCellClick(record),
             }),
             ...getColumnSearchProps('phoneName'),
         },
@@ -139,6 +179,9 @@ const FirstPage: React.FC = () => {
             dataIndex: 'inStock',
             key: 'inStock',
             ...getColumnSearchProps('inStock'),
+            onCell: (record: Phone) => ({
+                onClick: () => handleCellClick(record),
+            }),
             render: (inStock) => {
                 return <Badge
                     status={inStock ? "success" : "error"}
@@ -153,6 +196,9 @@ const FirstPage: React.FC = () => {
             dataIndex: 'rating',
             key: 'rating',
             ...getColumnSearchProps('rating'),
+            onCell: (record: Phone) => ({
+                onClick: () => handleCellClick(record),
+            }),
             sorter: (a, b) => a.rating - b.rating,
             sortDirections: ['descend', 'ascend'],
             render: (Rating) => {
@@ -166,7 +212,7 @@ const FirstPage: React.FC = () => {
 
 
     return (
-        <Table<Phone> columns={columns} dataSource={phones} pagination={false} scroll={{ x: 'max-content' }} />
+        <Table<Phone> columns={columns} dataSource={phoneList} pagination={false} scroll={{ x: 'max-content' }} />
         // <List>
         //     <VirtualList
         //         data={phones}

@@ -7,7 +7,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
 import { PhoneProvider } from "./model/PhoneContext";
-
+import { ReviewProvider } from "./model/ReviewContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,7 +16,9 @@ root.render(
   <Provider store={store}>
     <BrowserRouter>
      <PhoneProvider>
-        <App />
+       <ReviewProvider>
+          <App />
+       </ReviewProvider>
      </PhoneProvider>
      </BrowserRouter>
   </Provider>
